@@ -1,0 +1,3 @@
+[submodule "system-extensions"]
+	path = system-extensions
+	url = git@github.com:irvinsoftware/system-extensions.git
