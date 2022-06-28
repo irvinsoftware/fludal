@@ -1,6 +1,6 @@
 ﻿using System.Data;
 using System.Data.SqlClient;
-using System.Reflection;
+using Irvin.Extensions.Reflection;
 using Irvin.TypeConversion;
 
 namespace Irvin.Fludal.SqlClient;
@@ -53,43 +53,24 @@ internal sealed class SqlCursor<TModel> : SqlExecutor, IAsyncEnumerable<TModel>,
             columnNames.Add(record.GetName(i));
         }
 
-        TModel model = Activator.CreateInstance<TModel>();
-
-        MemberInfo[] memberInfos = typeof(TModel).GetMembers();
-        foreach (MemberInfo memberInfo in memberInfos)
+        var binders = typeof(TModel).GetBinders();
+        
+        foreach (DataMemberInfo binder in binders)
         {
-            if (memberInfo.MemberType == MemberTypes.Field || memberInfo.MemberType == MemberTypes.Property)
+            int columnOrdinal = columnNames.FindIndex(name => name.Equals(binder.Name, StringComparison.InvariantCultureIgnoreCase));
+            if (columnOrdinal >= 0)
             {
-                int columnOrdinal = columnNames.FindIndex(x => x == memberInfo.Name);
-                if (columnOrdinal >= 0)
-                {
-                    object value = record[columnOrdinal];
-                    if (value == DBNull.Value)
-                    {
-                        value = null;
-                    }
-
-                    if (memberInfo is PropertyInfo)
-                    {
-                        PropertyInfo propertyInfo = memberInfo as PropertyInfo;
-                        value = value.ConvertTo(propertyInfo.PropertyType);
-                        propertyInfo.SetValue(model, value);
-                    }
-                    else if (memberInfo is FieldInfo)
-                    {
-                        FieldInfo fieldInfo = memberInfo as FieldInfo;
-                        value = value.ConvertTo(fieldInfo.FieldType);
-                        fieldInfo.SetValueDirect(__makeref(model), value); //TODO: find better implementation
-                    }
-                }
-                else
-                {
-                    ActualWarnings.Add($"No column was found to populate member '{memberInfo.Name}'.");
-                }
+                object value = record[columnOrdinal];
+                value = value.ConvertTo(binder.DataType);
+                binder.Value = value;
+            }
+            else
+            {
+                ActualWarnings.Add($"No column was found to populate member '{binder.Name}'.");
             }
         }
 
-        return model;
+        return binders.Build<TModel>();
     }
 
     public ValueTask DisposeAsync()

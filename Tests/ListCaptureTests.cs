@@ -84,7 +84,17 @@ public class ListCaptureTests
         List<DBModelClass> actualList = await actual.Content.ToListAsync();
 
         Assert.AreEqual(9, actual.Code);
-        AssertRowsFetched(actualList.ToDynamicList());
+        var actualList1 = actualList;
+        Assert.AreEqual(3, actualList1.Count);
+        Assert.IsNull(actualList1[0].A);
+        Assert.AreEqual(4, actualList1[0].B);
+        Assert.IsNotNull(actualList1[0].C);
+        Assert.AreEqual('A', actualList1[1].A);
+        Assert.AreEqual(4, actualList1[1].B);
+        Assert.IsNull(actualList1[1].C);
+        Assert.AreEqual('A', actualList1[2].A);
+        Assert.AreEqual(4, actualList1[2].B);
+        Assert.IsNotNull(actualList1[2].C);
     }
 
     [Test]
@@ -101,11 +111,20 @@ public class ListCaptureTests
             ;
         
         Assert.AreEqual(9, actual.Code);
-        AssertRowsFetched(actual.Content.ToDynamicList());
+        var actualList = actual.Content;
+        Assert.AreEqual(3, actualList.Count);
+        Assert.IsNull(actualList[0].A);
+        Assert.AreEqual(4, actualList[0].B);
+        Assert.IsNotNull(actualList[0].C);
+        Assert.AreEqual('A', actualList[1].A);
+        Assert.AreEqual(4, actualList[1].B);
+        Assert.IsNull(actualList[1].C);
+        Assert.AreEqual('A', actualList[2].A);
+        Assert.AreEqual(4, actualList[2].B);
+        Assert.IsNotNull(actualList[2].C);
     }
     
     [Test]
-    [Ignore("not ready for this complexity yet")]  //TODO: implement
     public async Task CapturesEmitAndReturnCode_ForRecord()
     {
         var actual = await
@@ -119,21 +138,17 @@ public class ListCaptureTests
             ;
         
         Assert.AreEqual(9, actual.Code);
-        AssertRowsFetched(actual.Content.ToDynamicList());
-    }
-
-    private static void AssertRowsFetched(List<dynamic> actualList)
-    {
+        List<DBModelRecord> actualList = actual.Content;
         Assert.AreEqual(3, actualList.Count);
         Assert.IsNull(actualList[0].A);
         Assert.AreEqual(4, actualList[0].B);
-        Assert.IsNotNull(actualList[0].C);
+        Assert.IsNotNull(actualList[0].c);
         Assert.AreEqual('A', actualList[1].A);
         Assert.AreEqual(4, actualList[1].B);
-        Assert.IsNull(actualList[1].C);
+        Assert.IsNull(actualList[1].c);
         Assert.AreEqual('A', actualList[2].A);
         Assert.AreEqual(4, actualList[2].B);
-        Assert.IsNotNull(actualList[2].C);
+        Assert.IsNotNull(actualList[2].c);
     }
 
     private class DBModelClass

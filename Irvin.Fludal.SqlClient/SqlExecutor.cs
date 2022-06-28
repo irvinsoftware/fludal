@@ -17,6 +17,8 @@ internal class SqlExecutor
             throw new ArgumentNullException(nameof(command));
         }
 
+        ActualWarnings = new List<string>();
+        
         _pipeline = new ResourceStack();
         SqlConnection connection = new SqlConnection(connectionAddress);
         _pipeline.Push(connection);
