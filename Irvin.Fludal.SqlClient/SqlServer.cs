@@ -2,6 +2,7 @@
 using System.Data.SqlClient;
 using System.Xml;
 using Irvin.Extensions.Collections;
+using Irvin.TypeConversion;
 
 namespace Irvin.Fludal.SqlClient;
 
@@ -96,8 +97,7 @@ public class SqlServer : IDataSource<SqlServer>
             Command = new SqlCommand();
         }
 
-        //TODO: actually implement type mapping
-        Command.Parameters.Add(new SqlParameter(parameterName, SqlDbType.Int) { Direction = ParameterDirection.Output });
+        Command.Parameters.Add(new SqlParameter(parameterName, typeof(T).ToDefaultSqlType()) { Direction = ParameterDirection.Output });
         return this;
     }
 

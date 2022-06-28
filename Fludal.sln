@@ -14,6 +14,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SystemExtensions.Framework"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SystemExtensions.Test", "system-extensions\SystemExtensions.Test\SystemExtensions.Test.csproj", "{FBE39DB0-2568-4C55-B3EC-CBCC51ABA33E}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Irvin.TypeConversion", "Irvin.TypeConversion\Irvin.TypeConversion.csproj", "{2C0BAC8D-E765-4E82-9C95-B64D39130265}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -44,6 +46,10 @@ Global
 		{FBE39DB0-2568-4C55-B3EC-CBCC51ABA33E}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{FBE39DB0-2568-4C55-B3EC-CBCC51ABA33E}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{FBE39DB0-2568-4C55-B3EC-CBCC51ABA33E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{2C0BAC8D-E765-4E82-9C95-B64D39130265}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2C0BAC8D-E765-4E82-9C95-B64D39130265}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2C0BAC8D-E765-4E82-9C95-B64D39130265}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2C0BAC8D-E765-4E82-9C95-B64D39130265}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{610E9F28-E72C-44D1-8E1E-712371093AE3} = {12BA2DE2-CD3B-4025-AE4D-4CDA2CB27533}

@@ -1,6 +1,7 @@
 ﻿using System.Data;
 using System.Data.SqlClient;
 using System.Reflection;
+using Irvin.TypeConversion;
 
 namespace Irvin.Fludal.SqlClient;
 
@@ -71,21 +72,13 @@ internal sealed class SqlCursor<TModel> : SqlExecutor, IAsyncEnumerable<TModel>,
                     if (memberInfo is PropertyInfo)
                     {
                         PropertyInfo propertyInfo = memberInfo as PropertyInfo;
-                        if (propertyInfo.PropertyType == typeof(char?)) //TODO: better mapping
-                        {
-                            value = value?.ToString().First();
-                        }
-
+                        value = value.ConvertTo(propertyInfo.PropertyType);
                         propertyInfo.SetValue(model, value);
                     }
                     else if (memberInfo is FieldInfo)
                     {
                         FieldInfo fieldInfo = memberInfo as FieldInfo;
-                        if (fieldInfo.FieldType == typeof(char?)) //TODO: better mapping
-                        {
-                            value = value?.ToString().First();
-                        }
-
+                        value = value.ConvertTo(fieldInfo.FieldType);
                         fieldInfo.SetValueDirect(__makeref(model), value); //TODO: find better implementation
                     }
                 }
