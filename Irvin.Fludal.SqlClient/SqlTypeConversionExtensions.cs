@@ -1,6 +1,6 @@
 ﻿using System.Data;
 
-namespace Irvin.TypeConversion;
+namespace Irvin.Fludal.SqlClient;
 
 public static class SqlTypeConversionExtensions
 {
