@@ -10,7 +10,7 @@
     <ItemGroup>
       <ProjectReference Include="..\Irvin.Fludal\Irvin.Fludal.csproj" />
       <ProjectReference Include="..\Irvin.TypeConversion\Irvin.TypeConversion.csproj" />
-      <ProjectReference Include="..\system-extensions\SystemExtensions.Standard\SystemExtensions.Standard.csproj" />
+      <ProjectReference Include="$(SolutionDir)\system-extensions\SystemExtensions.Standard\SystemExtensions.Standard.csproj" />
     </ItemGroup>
 
     <ItemGroup>
