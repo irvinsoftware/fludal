@@ -40,7 +40,7 @@ public class ListCaptureTests
             ;
 
         int rowCount = 0;
-        await foreach (DBModelClass actualItem in actual.Content)
+        await foreach (DBModelClass actualItem in actual.Content.ConfigureAwait(false))
         {
             rowCount++;
 
@@ -81,7 +81,7 @@ public class ListCaptureTests
                     .ConfigureAwait(false)
             ;
 
-        List<DBModelClass> actualList = await actual.Content.ToListAsync();
+        List<DBModelClass> actualList = await actual.Content.ToListAsync().ConfigureAwait(false);
 
         Assert.AreEqual(9, actual.Code);
         var actualList1 = actualList;

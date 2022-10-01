@@ -57,6 +57,23 @@ public class SqlServer : IDataSource<SqlServer>
         return this;
     }
 
+    public SqlServer RunQuery(string commandText)
+    {
+        if (string.IsNullOrWhiteSpace(commandText))
+        {
+            throw new ArgumentNullException(nameof(commandText));
+        }
+
+        if (Command == null)
+        {
+            Command = new SqlCommand();
+        }
+        
+        Command.CommandText = commandText;
+        Command.CommandType = CommandType.Text;
+        return this;
+    }
+
     public SqlServer WithStringParameter(string name, string value)
     {
         AddInputParameter(name, value);
@@ -137,5 +154,14 @@ public class SqlServer : IDataSource<SqlServer>
         SqlResult result = new SqlResult(ConnectionAddress, Command);
         await result.Prepare(CancellationToken).ConfigureAwait(false);
         return result;
+    }
+
+    public async Task<IResult<T?>> ThenReturn<T>()
+        where T : struct
+    {
+        SqlResult<T?> result = new SqlResult<T?>(ConnectionAddress, Command);
+        await result.Prepare(CancellationToken).ConfigureAwait(false);
+        List<T?> content = await result.Content.ToListAsync(cancellationToken: CancellationToken);
+        return new BasicResult<T?>(result.Code, content.FirstOrDefault());
     }
 }

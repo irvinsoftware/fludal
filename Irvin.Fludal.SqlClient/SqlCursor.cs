@@ -1,5 +1,6 @@
 ﻿using System.Data;
 using System.Data.SqlClient;
+using Irvin.Extensions;
 using Irvin.Extensions.Reflection;
 using Irvin.TypeConversion;
 
@@ -47,13 +48,23 @@ internal sealed class SqlCursor<TModel> : SqlExecutor, IAsyncEnumerable<TModel>,
 
     private TModel BuildFrom(IDataRecord record)
     {
+        Type itemType =
+            typeof(TModel).IsTypeOf(typeof(Nullable<>))
+                ? typeof(TModel).GetGenericArguments().First()
+                : typeof(TModel);
+        
+        if (itemType.IsPrimitive)
+        {
+            return (TModel) record[0];
+        }
+        
         List<string> columnNames = new List<string>();
         for (int i = 0; i < record.FieldCount; i++)
         {
             columnNames.Add(record.GetName(i));
         }
 
-        var binders = typeof(TModel).GetBinders();
+        var binders = itemType.GetBinders();
         
         foreach (DataMemberInfo binder in binders)
         {

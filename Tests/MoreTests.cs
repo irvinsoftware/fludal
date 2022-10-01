@@ -32,4 +32,23 @@ public class MoreTests
         Assert.NotNull(actualValue);
         Assert.AreEqual(92, actualValue.Value);
     }
+
+    [Test]
+    public async Task DoesSimpleButRepeatedExecution()
+    {
+        SqlServer databaseConnection = Please.ConnectTo<SqlServer>().UsingConfiguredConnectionNamed("my_test");
+        
+        await
+            databaseConnection
+                .ExecuteStoredProcedure("dbo.Transaction_Increment")
+                .WithParameter<int>("NewValue", 1324)
+                .WithCancellationToken(CancellationToken.None)
+                .Go()
+                .ConfigureAwait(false);
+
+        IResult<int?> actual = await databaseConnection.RunQuery("SELECT NumberValue FROM dbo.TransactionTable").ThenReturn<int>();
+        Assert.NotNull(actual);
+        Assert.NotNull(actual.Content);
+        Assert.AreEqual(1324, actual.Content);
+    }
 }
