@@ -19,7 +19,7 @@ public class MoreTests
                 .AndExecuteStoredProcedure("dbo.InOutReturn")
                 .WithParameter<decimal>("@Greg", 4.53M)
                 .WithParameter<DateTime>("@Tuila", DateTime.Now)
-                .WithStringParameter("@Samuel", "London Sydney Auckland")
+                .WithParameter("@Samuel", "London Sydney Auckland")
                 .WithParameter<int>("@Kings", null)
                 .WithOutputParameter<int>("@TheIt")
                 .WithCancellationToken(CancellationToken.None)

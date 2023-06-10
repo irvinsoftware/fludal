@@ -2,7 +2,6 @@
 using System.Data.SqlClient;
 using System.Xml;
 using Irvin.Extensions.Collections;
-using Irvin.TypeConversion;
 
 namespace Irvin.Fludal.SqlClient;
 
@@ -74,14 +73,14 @@ public class SqlServer : IDataSource<SqlServer>
         return this;
     }
 
-    public SqlServer WithStringParameter(string name, string value)
+    public SqlServer WithParameter<T>(string name, T? value)
+        where T : struct
     {
         AddInputParameter(name, value);
         return this;
     }
 
-    public SqlServer WithParameter<T>(string name, T? value)
-        where T : struct
+    public SqlServer WithParameter(string name, string value)
     {
         AddInputParameter(name, value);
         return this;
