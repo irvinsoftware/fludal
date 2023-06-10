@@ -4,7 +4,7 @@ using System.Diagnostics;
 
 namespace Irvin.Fludal.SqlClient;
 
-internal class SqlExecutor
+internal class SqlExecutor : IDisposable
 {
     protected ResourceStack _pipeline;
     protected CancellationToken _cancellationToken;
@@ -58,5 +58,11 @@ internal class SqlExecutor
             command.Parameters.Cast<SqlParameter>()
                    .Where(p => p.Direction == ParameterDirection.Output || p.Direction == ParameterDirection.InputOutput)
                    .ToDictionary(p => p.ParameterName, p => p.Value == DBNull.Value ? null : p.Value);
+    }
+
+    public virtual void Dispose()
+    {
+        _pipeline?.Dispose();
+        _pipeline = null;
     }
 }

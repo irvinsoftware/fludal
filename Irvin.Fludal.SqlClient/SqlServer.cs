@@ -148,11 +148,17 @@ public class SqlServer : IDataSource<SqlServer>
         return result;
     }
 
-    public async Task<SqlResult> Go()
+    public async Task<SqlResult> AndReturn()
     {
         SqlResult result = new SqlResult(ConnectionAddress, Command);
         await result.Prepare(CancellationToken).ConfigureAwait(false);
         return result;
+    }
+    
+    public async Task Go()
+    {
+        using SqlResult result = new SqlResult(ConnectionAddress, Command);
+        await result.Prepare(CancellationToken).ConfigureAwait(false);
     }
 
     public async Task<IResult<T?>> ThenReturn<T>()

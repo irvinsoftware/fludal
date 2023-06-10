@@ -39,8 +39,7 @@ internal sealed class SqlCursor<TModel> : SqlExecutor, IAsyncEnumerable<TModel>,
             return true;
         }
         
-        _pipeline.Dispose();
-        _pipeline = null;
+        await DisposeAsync();
         return false;
     }
 
@@ -86,6 +85,7 @@ internal sealed class SqlCursor<TModel> : SqlExecutor, IAsyncEnumerable<TModel>,
 
     public ValueTask DisposeAsync()
     {
+        Dispose();
         return new ValueTask();
     }
 }
