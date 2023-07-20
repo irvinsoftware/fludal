@@ -59,14 +59,16 @@ public class SqlResult : IResult, IDisposable
     }
 }
 
-public class SqlResult<TModel> : IResult<IAsyncEnumerable<TModel>>, IDisposable, IAsyncDisposable
+internal class SqlResult<TModel> : IResult<IAsyncEnumerable<TModel>>, IDisposable, IAsyncDisposable
 {
     private bool IsDisposed { get; set; }
     private SqlCursor<TModel> Cursor { get; set; }
 
     internal SqlResult(string connectionAddress, SqlCommand command)
     {
+        Options = new ModelBindingOptions();
         Cursor = new SqlCursor<TModel>(connectionAddress, command.Clone());
+        Cursor.Options = Options;
     }
 
     internal async Task Prepare(CancellationToken cancellationToken = default)
@@ -77,6 +79,7 @@ public class SqlResult<TModel> : IResult<IAsyncEnumerable<TModel>>, IDisposable,
     public int? Code => Cursor.ReturnCode;
     public IEnumerable<string> Warnings => Cursor.ActualWarnings;
     public IAsyncEnumerable<TModel> Content => Cursor;
+    public ModelBindingOptions Options { get; }
 
     public void Dispose()
     {

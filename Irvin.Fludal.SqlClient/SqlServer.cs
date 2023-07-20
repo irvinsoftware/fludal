@@ -165,13 +165,16 @@ public class SqlServer : IDataSource<SqlServer>
         where T : struct
     {
         SqlResult<T?> result = new SqlResult<T?>(ConnectionAddress, Command);
+        result.Options.PopulateFields();
         await result.Prepare(CancellationToken).ConfigureAwait(false);
         List<T?> content = await result.Content.ToListAsync(cancellationToken: CancellationToken);
         return new BasicResult<T?>(result.Code, content.FirstOrDefault());
     }
 
-    public IMultiPartResult ThenReadAsMultipleParts()
+    public IMultiPartResult ThenReadAsMultipleParts(Action<ModelBindingOptions> options)
     {
-        return new SqlMultiPartResult(ConnectionAddress, Command, CancellationToken);
+        SqlMultiPartResult result = new SqlMultiPartResult(ConnectionAddress, Command, CancellationToken);
+        options(result.Options);
+        return result;
     }
 }

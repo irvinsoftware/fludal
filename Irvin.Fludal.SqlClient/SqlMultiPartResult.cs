@@ -8,11 +8,13 @@ internal class SqlMultiPartResult : SqlCursor, IMultiPartResult
     public SqlMultiPartResult(string connectionAddress, SqlCommand command, CancellationToken cancellationToken)
         : base(connectionAddress, command)
     {
+        Options = new ModelBindingOptions();
         _cancellationToken = cancellationToken;
     }
 
     public int? Code => ReturnCode;
     public IEnumerable<string> Warnings => ActualWarnings;
+    internal ModelBindingOptions Options { get; }
 
     public async Task<T> ReadSingle<T>()
     {
@@ -44,6 +46,8 @@ internal class SqlMultiPartResult : SqlCursor, IMultiPartResult
             await Prepare();
         }
 
-        return new SqlCursor<T>(_pipeline);
+        SqlCursor<T> subCursor = new SqlCursor<T>(_pipeline);
+        subCursor.Options = Options;
+        return subCursor;
     }
 }

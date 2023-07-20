@@ -1,5 +1,6 @@
 ﻿using System.Data;
 using System.Data.SqlClient;
+using System.Reflection;
 using Irvin.Extensions;
 using Irvin.Extensions.Reflection;
 
@@ -37,8 +38,9 @@ internal sealed class SqlCursor<TModel> : SqlCursor, IAsyncEnumerable<TModel>, I
         Disposable = true;
     }
 
-    private bool Disposable { get; set; }
-    
+    private bool Disposable { get; }
+    public ModelBindingOptions Options { get; set; }
+
     public SqlCursor(ResourceStack pipeline)
     {
         _pipeline = pipeline;
@@ -91,20 +93,62 @@ internal sealed class SqlCursor<TModel> : SqlCursor, IAsyncEnumerable<TModel>, I
 
         IEnumerable<DataMemberInfo> binders = itemType.GetBinders();
         
-        //TODO: should CLR lead or should SQL lead?
-        foreach (DataMemberInfo binder in binders)
+        if(Options.AreTargetDriven)
         {
-            int columnOrdinal = columnNames.FindIndex(name => name.Equals(binder.Name, StringComparison.InvariantCultureIgnoreCase));
-            if (columnOrdinal >= 0)
+            foreach (DataMemberInfo binder in binders)
             {
-                object value = record[columnOrdinal];
-                value = value.ConvertTo(binder.DataType);
-                binder.Value = value;
+                int columnOrdinal = columnNames.FindIndex(name => name.Equals(binder.Name, StringComparison.InvariantCultureIgnoreCase));
+                if (columnOrdinal >= 0)
+                {
+                    object value = record[columnOrdinal];
+                    value = value.ConvertTo(binder.DataType);
+                    binder.Value = value;
+                }
+                else
+                {
+                    string message = $"No column was found to populate member '{binder.Name}'.";
+
+                    if (Options.Strict)
+                    {
+                        throw new ArgumentException(message);
+                    }
+
+                    ActualWarnings.Add(message);
+                }
             }
-            else
+        }
+        else if (Options.AreSourceDriven)
+        {
+            for (int columnOrdinal = 0; columnOrdinal < columnNames.Count; columnOrdinal++)
             {
-                ActualWarnings.Add($"No column was found to populate member '{binder.Name}'.");
+                string columnName = columnNames[columnOrdinal];
+                
+                DataMemberInfo binder = 
+                    binders.FirstOrDefault(b => b.Name.Equals(columnName, StringComparison.InvariantCultureIgnoreCase) && 
+                                                b.CanSet);
+
+                if (binder == null)
+                {
+                    string message = $"No field or property found to bind '{columnName}'.";
+                    
+                    if (Options.Strict)
+                    {
+                        throw new TargetException(message);
+                    }
+
+                    ActualWarnings.Add(message);
+                }
+                else
+                {
+                    object value = record[columnOrdinal];
+                    value = value.ConvertTo(binder.DataType);
+                    binder.Value = value;
+                }
             }
+        }
+        else
+        {
+            throw new NotSupportedException();
         }
 
         return binders.Build<TModel>();
