@@ -6,8 +6,12 @@ using Irvin.TypeConversion;
 
 namespace Irvin.Fludal.SqlClient;
 
-internal sealed class SqlCursor<TModel> : SqlExecutor, IAsyncEnumerable<TModel>, IAsyncEnumerator<TModel>
+internal class SqlCursor : SqlExecutor
 {
+    protected SqlCursor()
+    {
+    }
+
     public SqlCursor(string connectionAddress, SqlCommand command)
         : base(connectionAddress, command)
     {
@@ -17,6 +21,25 @@ internal sealed class SqlCursor<TModel> : SqlExecutor, IAsyncEnumerable<TModel>,
     {
         SqlDataReader reader = await command.ExecuteReaderAsync(_cancellationToken).ConfigureAwait(false);
         _pipeline.Push(reader);
+    }
+    
+    public ValueTask DisposeAsync()
+    {
+        Dispose();
+        return new ValueTask();
+    }
+}
+
+internal sealed class SqlCursor<TModel> : SqlCursor, IAsyncEnumerable<TModel>, IAsyncEnumerator<TModel>
+{
+    public SqlCursor(string connectionAddress, SqlCommand command)
+        : base(connectionAddress, command)
+    {
+    }
+
+    public SqlCursor(ResourceStack pipeline)
+    {
+        _pipeline = pipeline;
     }
 
     public IAsyncEnumerator<TModel> GetAsyncEnumerator(CancellationToken cancellationToken = default)
@@ -81,11 +104,5 @@ internal sealed class SqlCursor<TModel> : SqlExecutor, IAsyncEnumerable<TModel>,
         }
 
         return binders.Build<TModel>();
-    }
-
-    public ValueTask DisposeAsync()
-    {
-        Dispose();
-        return new ValueTask();
     }
 }

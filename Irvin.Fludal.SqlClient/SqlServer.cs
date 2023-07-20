@@ -169,4 +169,9 @@ public class SqlServer : IDataSource<SqlServer>
         List<T?> content = await result.Content.ToListAsync(cancellationToken: CancellationToken);
         return new BasicResult<T?>(result.Code, content.FirstOrDefault());
     }
+
+    public IMultiPartResult ThenReadAsMultipleParts()
+    {
+        return new SqlMultiPartResult(ConnectionAddress, Command, CancellationToken);
+    }
 }

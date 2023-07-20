@@ -9,7 +9,11 @@ internal class SqlExecutor : IDisposable
     protected ResourceStack _pipeline;
     protected CancellationToken _cancellationToken;
     private readonly SqlParameter _returnParameter;
-    
+
+    protected SqlExecutor()
+    {
+    }
+
     public SqlExecutor(string connectionAddress, SqlCommand command)
     {
         if (command == null)
@@ -28,7 +32,7 @@ internal class SqlExecutor : IDisposable
         command.Parameters.Add(_returnParameter);
         _pipeline.Push(command);
     }
-    
+
     internal int? ReturnCode => (int?)_returnParameter.Value;
     internal List<string> ActualWarnings { get; set; }
     public Dictionary<string, object> OutputParameters { get; private set; }
@@ -37,14 +41,20 @@ internal class SqlExecutor : IDisposable
     {
         _cancellationToken = cancellationToken;
 
+        SqlCommand command = await Prepare();
+
+        PopulateOutputParameters(command);
+    }
+
+    protected async Task<SqlCommand> Prepare()
+    {
         SqlCommand command = _pipeline.Tip as SqlCommand;
         Debug.Assert(command != null);
 
         await command.Connection.OpenAsync(_cancellationToken).ConfigureAwait(false);
-        
+
         await Execute(command).ConfigureAwait(false);
-        
-        PopulateOutputParameters(command);
+        return command;
     }
 
     protected virtual async Task Execute(SqlCommand command)
