@@ -6,8 +6,6 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Irvin.Fludal.SqlClient", "I
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Tests", "Tests\Tests.csproj", "{32C7FC90-A513-48B6-A3CA-5FE46804DFC3}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Irvin.TypeConversion", "Irvin.TypeConversion\Irvin.TypeConversion.csproj", "{2C0BAC8D-E765-4E82-9C95-B64D39130265}"
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -26,10 +24,6 @@ Global
 		{32C7FC90-A513-48B6-A3CA-5FE46804DFC3}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{32C7FC90-A513-48B6-A3CA-5FE46804DFC3}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{32C7FC90-A513-48B6-A3CA-5FE46804DFC3}.Release|Any CPU.Build.0 = Release|Any CPU
-		{2C0BAC8D-E765-4E82-9C95-B64D39130265}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{2C0BAC8D-E765-4E82-9C95-B64D39130265}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{2C0BAC8D-E765-4E82-9C95-B64D39130265}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{2C0BAC8D-E765-4E82-9C95-B64D39130265}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 	EndGlobalSection
