@@ -5,6 +5,14 @@
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>disable</Nullable>
         <LangVersion>10</LangVersion>
+        <PackageId>Fludal</PackageId>
+        <Version>0.7.1</Version>
+        <Title>Fluent Data Access Layer</Title>
+        <Authors>Nate Irvin</Authors>
+        <Copyright>Copyright © Nathaniel Irvin 2023</Copyright>
+        <RepositoryUrl>https://github.com/irvinsoftware/fludal</RepositoryUrl>
+        <RepositoryType>git</RepositoryType>
+        <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     </PropertyGroup>
 
 </Project>

@@ -5,17 +5,32 @@
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>disable</Nullable>
         <LangVersion>10</LangVersion>
+        <Configurations>Debug;Release;DebugEverything</Configurations>
+        <Platforms>AnyCPU</Platforms>
+        <PackageId>Fludal.SqlServer</PackageId>
+        <Version>0.7.1</Version>
+        <Title>Fluent Data Access Layer for SQL Server</Title>
+        <Authors>Nate Irvin</Authors>
+        <Copyright>Copyright © Nathaniel Irvin 2023</Copyright>
+        <RepositoryUrl>https://github.com/irvinsoftware/fludal</RepositoryUrl>
+        <RepositoryType>git</RepositoryType>
+        <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    </PropertyGroup>
+
+    <PropertyGroup Condition=" '$(Configuration)' == 'DebugEverything' ">
+      <DebugSymbols Condition=" '$(DebugSymbols)' == '' ">true</DebugSymbols>
+      <Optimize Condition=" '$(Optimize)' == '' ">false</Optimize>
     </PropertyGroup>
 
     <ItemGroup>
       <ProjectReference Include="..\Irvin.Fludal\Irvin.Fludal.csproj" />
-      <ProjectReference Include="..\Irvin.TypeConversion\Irvin.TypeConversion.csproj" />
-      <ProjectReference Include="$(SolutionDir)\system-extensions\SystemExtensions.Standard\SystemExtensions.Standard.csproj" />
+      <ProjectReference Include="..\..\system-extensions\SystemExtensions.Standard\SystemExtensions.Standard.csproj" Condition=" '$(Configuration)' == 'DebugEverything' " />
     </ItemGroup>
 
     <ItemGroup>
       <PackageReference Include="System.Configuration.ConfigurationManager" Version="6.0.0" />
-      <PackageReference Include="System.Data.SqlClient" Version="4.8.3" />
+      <PackageReference Include="System.Data.SqlClient" Version="4.8.5" />
+      <PackageReference Include="Irvin.SystemExtensions" Version="1.3.1" Condition=" '$(Configuration)' != 'DebugEverything' " />
     </ItemGroup>
 
 </Project>

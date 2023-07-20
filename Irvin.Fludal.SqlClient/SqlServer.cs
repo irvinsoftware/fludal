@@ -2,7 +2,6 @@
 using System.Data.SqlClient;
 using System.Xml;
 using Irvin.Extensions.Collections;
-using Irvin.TypeConversion;
 
 namespace Irvin.Fludal.SqlClient;
 
@@ -74,14 +73,14 @@ public class SqlServer : IDataSource<SqlServer>
         return this;
     }
 
-    public SqlServer WithStringParameter(string name, string value)
+    public SqlServer WithParameter<T>(string name, T? value)
+        where T : struct
     {
         AddInputParameter(name, value);
         return this;
     }
 
-    public SqlServer WithParameter<T>(string name, T? value)
-        where T : struct
+    public SqlServer WithParameter(string name, string value)
     {
         AddInputParameter(name, value);
         return this;
@@ -149,19 +148,33 @@ public class SqlServer : IDataSource<SqlServer>
         return result;
     }
 
-    public async Task<SqlResult> Go()
+    public async Task<SqlResult> AndReturn()
     {
         SqlResult result = new SqlResult(ConnectionAddress, Command);
         await result.Prepare(CancellationToken).ConfigureAwait(false);
         return result;
+    }
+    
+    public async Task Go()
+    {
+        using SqlResult result = new SqlResult(ConnectionAddress, Command);
+        await result.Prepare(CancellationToken).ConfigureAwait(false);
     }
 
     public async Task<IResult<T?>> ThenReturn<T>()
         where T : struct
     {
         SqlResult<T?> result = new SqlResult<T?>(ConnectionAddress, Command);
+        result.Options.PopulateFields();
         await result.Prepare(CancellationToken).ConfigureAwait(false);
         List<T?> content = await result.Content.ToListAsync(cancellationToken: CancellationToken);
         return new BasicResult<T?>(result.Code, content.FirstOrDefault());
+    }
+
+    public IMultiPartResult ThenReadAsMultipleParts(Action<ModelBindingOptions> options)
+    {
+        SqlMultiPartResult result = new SqlMultiPartResult(ConnectionAddress, Command, CancellationToken);
+        options(result.Options);
+        return result;
     }
 }

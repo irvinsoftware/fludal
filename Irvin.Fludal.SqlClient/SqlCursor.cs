@@ -1,13 +1,17 @@
 ﻿using System.Data;
 using System.Data.SqlClient;
+using System.Reflection;
 using Irvin.Extensions;
 using Irvin.Extensions.Reflection;
-using Irvin.TypeConversion;
 
 namespace Irvin.Fludal.SqlClient;
 
-internal sealed class SqlCursor<TModel> : SqlExecutor, IAsyncEnumerable<TModel>, IAsyncEnumerator<TModel>
+internal class SqlCursor : SqlExecutor
 {
+    protected SqlCursor()
+    {
+    }
+
     public SqlCursor(string connectionAddress, SqlCommand command)
         : base(connectionAddress, command)
     {
@@ -17,6 +21,30 @@ internal sealed class SqlCursor<TModel> : SqlExecutor, IAsyncEnumerable<TModel>,
     {
         SqlDataReader reader = await command.ExecuteReaderAsync(_cancellationToken).ConfigureAwait(false);
         _pipeline.Push(reader);
+    }
+    
+    public virtual ValueTask DisposeAsync()
+    {
+        Dispose();
+        return new ValueTask();
+    }
+}
+
+internal sealed class SqlCursor<TModel> : SqlCursor, IAsyncEnumerable<TModel>, IAsyncEnumerator<TModel>
+{
+    public SqlCursor(string connectionAddress, SqlCommand command)
+        : base(connectionAddress, command)
+    {
+        Disposable = true;
+    }
+
+    private bool Disposable { get; }
+    public ModelBindingOptions Options { get; set; }
+
+    public SqlCursor(ResourceStack pipeline)
+    {
+        _pipeline = pipeline;
+        Disposable = false;
     }
 
     public IAsyncEnumerator<TModel> GetAsyncEnumerator(CancellationToken cancellationToken = default)
@@ -39,8 +67,7 @@ internal sealed class SqlCursor<TModel> : SqlExecutor, IAsyncEnumerable<TModel>,
             return true;
         }
         
-        _pipeline.Dispose();
-        _pipeline = null;
+        await DisposeAsync();
         return false;
     }
 
@@ -64,28 +91,73 @@ internal sealed class SqlCursor<TModel> : SqlExecutor, IAsyncEnumerable<TModel>,
             columnNames.Add(record.GetName(i));
         }
 
-        var binders = itemType.GetBinders();
+        IEnumerable<DataMemberInfo> binders = itemType.GetBinders();
         
-        foreach (DataMemberInfo binder in binders)
+        if(Options.AreTargetDriven)
         {
-            int columnOrdinal = columnNames.FindIndex(name => name.Equals(binder.Name, StringComparison.InvariantCultureIgnoreCase));
-            if (columnOrdinal >= 0)
+            foreach (DataMemberInfo binder in binders)
             {
-                object value = record[columnOrdinal];
-                value = value.ConvertTo(binder.DataType);
-                binder.Value = value;
+                int columnOrdinal = columnNames.FindIndex(name => name.Equals(binder.Name, StringComparison.InvariantCultureIgnoreCase));
+                if (columnOrdinal >= 0)
+                {
+                    object value = record[columnOrdinal];
+                    value = value.ConvertTo(binder.DataType);
+                    binder.Value = value;
+                }
+                else
+                {
+                    string message = $"No column was found to populate member '{binder.Name}'.";
+
+                    if (Options.Strict)
+                    {
+                        throw new ArgumentException(message);
+                    }
+
+                    ActualWarnings.Add(message);
+                }
             }
-            else
+        }
+        else if (Options.AreSourceDriven)
+        {
+            for (int columnOrdinal = 0; columnOrdinal < columnNames.Count; columnOrdinal++)
             {
-                ActualWarnings.Add($"No column was found to populate member '{binder.Name}'.");
+                string columnName = columnNames[columnOrdinal];
+                
+                DataMemberInfo binder = 
+                    binders.FirstOrDefault(b => b.Name.Equals(columnName, StringComparison.InvariantCultureIgnoreCase) && 
+                                                b.CanSet);
+
+                if (binder == null)
+                {
+                    string message = $"No field or property found to bind '{columnName}'.";
+                    
+                    if (Options.Strict)
+                    {
+                        throw new TargetException(message);
+                    }
+
+                    ActualWarnings.Add(message);
+                }
+                else
+                {
+                    object value = record[columnOrdinal];
+                    value = value.ConvertTo(binder.DataType);
+                    binder.Value = value;
+                }
             }
+        }
+        else
+        {
+            throw new NotSupportedException();
         }
 
         return binders.Build<TModel>();
     }
 
-    public ValueTask DisposeAsync()
+    public override ValueTask DisposeAsync()
     {
-        return new ValueTask();
+        return !Disposable
+            ? new ValueTask()
+            : base.DisposeAsync();
     }
 }

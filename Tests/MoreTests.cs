@@ -19,11 +19,11 @@ public class MoreTests
                 .AndExecuteStoredProcedure("dbo.InOutReturn")
                 .WithParameter<decimal>("@Greg", 4.53M)
                 .WithParameter<DateTime>("@Tuila", DateTime.Now)
-                .WithStringParameter("@Samuel", "London Sydney Auckland")
+                .WithParameter("@Samuel", "London Sydney Auckland")
                 .WithParameter<int>("@Kings", null)
                 .WithOutputParameter<int>("@TheIt")
                 .WithCancellationToken(CancellationToken.None)
-                .Go()
+                .AndReturn()
                 .ConfigureAwait(false);
 
         int? actualValue = execution.GetOutputValue<int>("@TheIt");
@@ -43,7 +43,7 @@ public class MoreTests
                 .ExecuteStoredProcedure("dbo.Transaction_Increment")
                 .WithParameter<int>("NewValue", 1324)
                 .WithCancellationToken(CancellationToken.None)
-                .Go()
+                .AndReturn()
                 .ConfigureAwait(false);
 
         IResult<int?> actual = await databaseConnection.RunQuery("SELECT NumberValue FROM dbo.TransactionTable").ThenReturn<int>();

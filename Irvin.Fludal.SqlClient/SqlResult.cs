@@ -2,9 +2,9 @@
 
 namespace Irvin.Fludal.SqlClient;
 
-public class SqlResult : IResult
+public class SqlResult : IResult, IDisposable
 {
-    private SqlExecutor Executor { get; }
+    private SqlExecutor Executor { get; set; }
     
     internal SqlResult(string connectionAddress, SqlCommand command)
     {
@@ -51,15 +51,24 @@ public class SqlResult : IResult
 
         return rawValue;
     }
+
+    public void Dispose()
+    {
+        Executor?.Dispose();
+        Executor = null;
+    }
 }
 
-public class SqlResult<TModel> : IResult<IAsyncEnumerable<TModel>>
+internal class SqlResult<TModel> : IResult<IAsyncEnumerable<TModel>>, IDisposable, IAsyncDisposable
 {
-    private SqlCursor<TModel> Cursor { get; }
+    private bool IsDisposed { get; set; }
+    private SqlCursor<TModel> Cursor { get; set; }
 
     internal SqlResult(string connectionAddress, SqlCommand command)
     {
+        Options = new ModelBindingOptions();
         Cursor = new SqlCursor<TModel>(connectionAddress, command.Clone());
+        Cursor.Options = Options;
     }
 
     internal async Task Prepare(CancellationToken cancellationToken = default)
@@ -70,4 +79,25 @@ public class SqlResult<TModel> : IResult<IAsyncEnumerable<TModel>>
     public int? Code => Cursor.ReturnCode;
     public IEnumerable<string> Warnings => Cursor.ActualWarnings;
     public IAsyncEnumerable<TModel> Content => Cursor;
+    public ModelBindingOptions Options { get; }
+
+    public void Dispose()
+    {
+        if (!IsDisposed)
+        {
+            Cursor.Dispose();
+            IsDisposed = true;
+        }
+    }
+
+    public ValueTask DisposeAsync()
+    {
+        if (!IsDisposed)
+        {
+            IsDisposed = true;
+            return Cursor.DisposeAsync();
+        }
+
+        return new ValueTask();
+    }
 }

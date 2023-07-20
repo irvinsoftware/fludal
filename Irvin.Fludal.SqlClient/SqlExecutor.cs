@@ -4,20 +4,24 @@ using System.Diagnostics;
 
 namespace Irvin.Fludal.SqlClient;
 
-internal class SqlExecutor
+internal class SqlExecutor : IDisposable
 {
     protected ResourceStack _pipeline;
     protected CancellationToken _cancellationToken;
     private readonly SqlParameter _returnParameter;
-    
+
+    protected SqlExecutor()
+    {
+        ActualWarnings = new List<string>();
+    }
+
     public SqlExecutor(string connectionAddress, SqlCommand command)
+        : this()
     {
         if (command == null)
         {
             throw new ArgumentNullException(nameof(command));
         }
-
-        ActualWarnings = new List<string>();
         
         _pipeline = new ResourceStack();
         SqlConnection connection = new SqlConnection(connectionAddress);
@@ -28,7 +32,7 @@ internal class SqlExecutor
         command.Parameters.Add(_returnParameter);
         _pipeline.Push(command);
     }
-    
+
     internal int? ReturnCode => (int?)_returnParameter.Value;
     internal List<string> ActualWarnings { get; set; }
     public Dictionary<string, object> OutputParameters { get; private set; }
@@ -37,14 +41,20 @@ internal class SqlExecutor
     {
         _cancellationToken = cancellationToken;
 
+        SqlCommand command = await Prepare();
+
+        PopulateOutputParameters(command);
+    }
+
+    protected async Task<SqlCommand> Prepare()
+    {
         SqlCommand command = _pipeline.Tip as SqlCommand;
         Debug.Assert(command != null);
 
         await command.Connection.OpenAsync(_cancellationToken).ConfigureAwait(false);
-        
+
         await Execute(command).ConfigureAwait(false);
-        
-        PopulateOutputParameters(command);
+        return command;
     }
 
     protected virtual async Task Execute(SqlCommand command)
@@ -58,5 +68,11 @@ internal class SqlExecutor
             command.Parameters.Cast<SqlParameter>()
                    .Where(p => p.Direction == ParameterDirection.Output || p.Direction == ParameterDirection.InputOutput)
                    .ToDictionary(p => p.ParameterName, p => p.Value == DBNull.Value ? null : p.Value);
+    }
+
+    public virtual void Dispose()
+    {
+        _pipeline?.Dispose();
+        _pipeline = null;
     }
 }
