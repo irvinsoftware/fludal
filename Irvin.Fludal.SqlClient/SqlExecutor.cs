@@ -12,16 +12,16 @@ internal class SqlExecutor : IDisposable
 
     protected SqlExecutor()
     {
+        ActualWarnings = new List<string>();
     }
 
     public SqlExecutor(string connectionAddress, SqlCommand command)
+        : this()
     {
         if (command == null)
         {
             throw new ArgumentNullException(nameof(command));
         }
-
-        ActualWarnings = new List<string>();
         
         _pipeline = new ResourceStack();
         SqlConnection connection = new SqlConnection(connectionAddress);

@@ -22,7 +22,7 @@ internal class SqlCursor : SqlExecutor
         _pipeline.Push(reader);
     }
     
-    public ValueTask DisposeAsync()
+    public virtual ValueTask DisposeAsync()
     {
         Dispose();
         return new ValueTask();
@@ -34,11 +34,15 @@ internal sealed class SqlCursor<TModel> : SqlCursor, IAsyncEnumerable<TModel>, I
     public SqlCursor(string connectionAddress, SqlCommand command)
         : base(connectionAddress, command)
     {
+        Disposable = true;
     }
 
+    private bool Disposable { get; set; }
+    
     public SqlCursor(ResourceStack pipeline)
     {
         _pipeline = pipeline;
+        Disposable = false;
     }
 
     public IAsyncEnumerator<TModel> GetAsyncEnumerator(CancellationToken cancellationToken = default)
@@ -85,8 +89,9 @@ internal sealed class SqlCursor<TModel> : SqlCursor, IAsyncEnumerable<TModel>, I
             columnNames.Add(record.GetName(i));
         }
 
-        var binders = itemType.GetBinders();
+        IEnumerable<DataMemberInfo> binders = itemType.GetBinders();
         
+        //TODO: should CLR lead or should SQL lead?
         foreach (DataMemberInfo binder in binders)
         {
             int columnOrdinal = columnNames.FindIndex(name => name.Equals(binder.Name, StringComparison.InvariantCultureIgnoreCase));
@@ -103,5 +108,12 @@ internal sealed class SqlCursor<TModel> : SqlCursor, IAsyncEnumerable<TModel>, I
         }
 
         return binders.Build<TModel>();
+    }
+
+    public override ValueTask DisposeAsync()
+    {
+        return !Disposable
+            ? new ValueTask()
+            : base.DisposeAsync();
     }
 }
