@@ -24,7 +24,6 @@
 
     <ItemGroup>
       <ProjectReference Include="..\Irvin.Fludal\Irvin.Fludal.csproj" />
-      <ProjectReference Include="..\Irvin.TypeConversion\Irvin.TypeConversion.csproj" />
       <ProjectReference Include="..\..\system-extensions\SystemExtensions.Standard\SystemExtensions.Standard.csproj" Condition=" '$(Configuration)' == 'DebugEverything' " />
     </ItemGroup>
 

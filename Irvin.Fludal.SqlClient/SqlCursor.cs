@@ -2,7 +2,6 @@
 using System.Data.SqlClient;
 using Irvin.Extensions;
 using Irvin.Extensions.Reflection;
-using Irvin.TypeConversion;
 
 namespace Irvin.Fludal.SqlClient;
 
