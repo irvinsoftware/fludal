@@ -116,6 +116,17 @@ public class SqlServer : IDataSource<SqlServer>
         Command.Parameters.Add(new SqlParameter(parameterName, typeof(T).ToDefaultSqlType()) { Direction = ParameterDirection.Output });
         return this;
     }
+    
+    public SqlServer WithTimeout(TimeSpan timeSpan)
+    {
+        Command.CommandTimeout = (int)timeSpan.TotalSeconds;
+        return this;
+    }
+
+    public SqlServer InLessThan(TimeSpan timeSpan)
+    {
+        return WithTimeout(timeSpan);
+    }
 
     public SqlServer WithCancellationToken(CancellationToken cancellationToken)
     {
@@ -154,7 +165,7 @@ public class SqlServer : IDataSource<SqlServer>
         await result.Prepare(CancellationToken).ConfigureAwait(false);
         return result;
     }
-    
+
     public async Task Go()
     {
         using SqlResult result = new SqlResult(ConnectionAddress, Command);
