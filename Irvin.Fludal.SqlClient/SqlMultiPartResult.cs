@@ -28,6 +28,11 @@ internal class SqlMultiPartResult : SqlCursor, IMultiPartResult
         return default;
     }
 
+    public async Task<IAsyncEnumerable<T>> ReadEnumerable<T>()
+    {
+        return await GetSubCursor<T>();
+    }
+
     public async Task<List<T>> ReadList<T>()
     {
         SqlCursor<T> cursor = await GetSubCursor<T>();
