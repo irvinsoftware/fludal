@@ -16,7 +16,7 @@ public class SqlResult : IResult, IDisposable
 
     internal async Task Prepare(CancellationToken cancellationToken = default)
     {
-        await Executor.Prepare(cancellationToken).ConfigureAwait(false);
+        await Executor.ExecuteAsync(cancellationToken).ConfigureAwait(false);
     }
     
     public T? GetOutputValue<T>(string parameterName)
@@ -73,7 +73,7 @@ internal class SqlResult<TModel> : IResult<IAsyncEnumerable<TModel>>, IDisposabl
 
     internal async Task Prepare(CancellationToken cancellationToken = default)
     {
-        await Cursor.Prepare(cancellationToken).ConfigureAwait(false);
+        await Cursor.ExecuteAsync(cancellationToken).ConfigureAwait(false);
     }
 
     public int? Code => Cursor.ReturnCode;

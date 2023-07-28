@@ -48,7 +48,7 @@ internal class SqlMultiPartResult : SqlCursor, IMultiPartResult
         }
         else
         {
-            await Prepare();
+            await Execute();
         }
 
         SqlCursor<T> subCursor = new SqlCursor<T>(_pipeline);

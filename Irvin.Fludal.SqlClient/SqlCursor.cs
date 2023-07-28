@@ -1,4 +1,5 @@
 ﻿using System.Data;
+using System.Data.Common;
 using System.Data.SqlClient;
 using System.Reflection;
 using Irvin.Extensions;
@@ -17,9 +18,9 @@ internal class SqlCursor : SqlExecutor
     {
     }
 
-    protected override async Task Execute(SqlCommand command)
+    protected override async Task Execute(DbCommand command)
     {
-        SqlDataReader reader = await command.ExecuteReaderAsync(_cancellationToken).ConfigureAwait(false);
+        SqlDataReader reader = (SqlDataReader) await command.ExecuteReaderAsync(_cancellationToken).ConfigureAwait(false);
         _pipeline.Push(reader);
     }
     
