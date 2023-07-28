@@ -1,4 +1,4 @@
-﻿namespace Irvin.Fludal.SqlClient;
+﻿namespace Irvin.Fludal;
 
 public static class DataConversionExtensions
 {

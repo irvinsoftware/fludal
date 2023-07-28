@@ -5,10 +5,6 @@ namespace Irvin.Fludal.SqlClient;
 
 internal class SqlExecutor : DbExecutor
 {
-    protected SqlExecutor()
-    {
-    }
-
     internal SqlExecutor(string connectionAddress, SqlCommand command)
         : base(connectionAddress, command)
     {

@@ -24,13 +24,11 @@
 
     <ItemGroup>
       <ProjectReference Include="..\Irvin.Fludal\Irvin.Fludal.csproj" />
-      <ProjectReference Include="..\..\system-extensions\SystemExtensions.Standard\SystemExtensions.Standard.csproj" Condition=" '$(Configuration)' == 'DebugEverything' " />
     </ItemGroup>
 
     <ItemGroup>
       <PackageReference Include="System.Configuration.ConfigurationManager" Version="6.0.0" />
       <PackageReference Include="System.Data.SqlClient" Version="4.8.5" />
-      <PackageReference Include="Irvin.SystemExtensions" Version="1.3.1" Condition=" '$(Configuration)' != 'DebugEverything' " />
     </ItemGroup>
 
 </Project>
