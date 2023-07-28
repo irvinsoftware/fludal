@@ -5,7 +5,7 @@ using Irvin.Extensions.Collections;
 
 namespace Irvin.Fludal.SqlClient;
 
-public class SqlServer : IDataSource<SqlServer>, IProcedureTarget<SqlServer>
+public class SqlServer : IDataSource<SqlServer>, IDbSource<SqlServer>, IProcedureTarget<SqlServer>
 {
     private string ConnectionAddress { get; set; }
     private SqlCommand Command { get; set; }
