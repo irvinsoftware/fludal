@@ -6,7 +6,7 @@
         <Nullable>disable</Nullable>
         <LangVersion>10</LangVersion>
         <PackageId>Fludal</PackageId>
-        <Version>0.7.2</Version>
+        <Version>0.8.0</Version>
         <Title>Fluent Data Access Layer</Title>
         <Authors>Nate Irvin</Authors>
         <Copyright>Copyright © Nathaniel Irvin 2023</Copyright>
