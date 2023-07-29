@@ -13,14 +13,16 @@ public class SqlServer : IDataSource<SqlServer>, IDbSource<SqlServer>, IProcedur
     
     public SqlServer UsingConfiguredConnectionNamed(string name)
     {
+        string connectionAddress = null;
+        
         if (File.Exists("app.config"))
         {
             XmlDocument document = new XmlDocument();
             document.Load("app.config");
-            ConnectionAddress = document.SelectSingleNode($"//connectionStrings/add[@name='{name}']/@connectionString")?.Value;
+            connectionAddress = document.SelectSingleNode($"//connectionStrings/add[@name='{name}']/@connectionString")?.Value;
         }
 
-        return this;
+        return UsingConnectionString(connectionAddress);
     }
 
     public SqlServer UsingConnectionString(string connectionString)
