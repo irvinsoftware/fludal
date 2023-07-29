@@ -96,9 +96,8 @@ public class SqlServer : IDataSource<SqlServer>, IDbSource<SqlServer>, IProcedur
 
     public async Task<SqlResult> AndReturn()
     {
-        return await Builder.ExecuteNonQueryAsync(
-            (connectionAddress, command) => new SqlResult(connectionAddress, command), 
-            CancellationToken);
+        Builder.CreateResultFactory = (connectionAddress, command) => new SqlResult(connectionAddress, command);
+        return await Builder.ExecuteNonQueryAsync<SqlResult>(CancellationToken);
     }
 
     public async Task Go()
@@ -116,10 +115,8 @@ public class SqlServer : IDataSource<SqlServer>, IDbSource<SqlServer>, IProcedur
 
     public IMultiPartResult ThenReadAsMultipleParts(Action<ModelBindingOptions> options)
     {
-        return Builder.ExecuteReaders(
-            (connectionAddress, command, cancellationToken) => 
-                new SqlMultiPartResult(connectionAddress, command, cancellationToken), 
-            options, 
-            CancellationToken);
+        Builder.CreateMultiPartResultFactory = (connectionAddress, command, cancellationToken) => 
+            new SqlMultiPartResult(connectionAddress, command, cancellationToken); 
+        return Builder.ExecuteReaders(options, CancellationToken);
     }
 }

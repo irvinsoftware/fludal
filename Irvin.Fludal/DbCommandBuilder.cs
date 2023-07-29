@@ -9,7 +9,7 @@ public sealed class DbCommandBuilder<TCommand>
     where TCommand : DbCommand, new()
 {
     private string ConnectionAddress { get; set; }
-    private DbCommand Command { get; set; }
+    private TCommand Command { get; set; }
 
     public void SetConnectionAddressFromName(string connectionName)
     {
@@ -109,24 +109,34 @@ public sealed class DbCommandBuilder<TCommand>
         Command.CommandTimeout = (int)timeSpan.TotalSeconds;
     }
 
-    public async Task<TResult> ExecuteNonQueryAsync<TResult>(Func<string, TCommand, TResult> factory, CancellationToken cancellationToken)
+    public Func<string, TCommand, DbResult> CreateResultFactory { get; set; }
+    
+    public async Task<TResult> ExecuteNonQueryAsync<TResult>(CancellationToken cancellationToken)
         where TResult : DbResult
     {
-        DbResult result = factory(ConnectionAddress, (TCommand)Command);
+        if (CreateResultFactory == null)
+        {
+            throw new ArgumentException(nameof(CreateResultFactory));
+        }
+        
+        DbResult result = CreateResultFactory(ConnectionAddress, Command);
         await result.Prepare(cancellationToken).ConfigureAwait(false);
         return (TResult) result;
     }
     
     public async Task<IResult<TValue?>> ExecuteScalarAsync<TValue, TWrapper>(
-        Func<string, TCommand, TWrapper> factory, CancellationToken cancellationToken)
+        Func<string, TCommand, TWrapper> factory, 
+        CancellationToken cancellationToken)
             where TWrapper : DbResult<TValue?>
             where TValue : struct
     {
-        DbResult<TValue?> result = factory(ConnectionAddress, (TCommand)Command);
-        result.Options.PopulateFields();
-        await result.Prepare(cancellationToken).ConfigureAwait(false);
-        List<TValue?> content = await result.Content.ToListAsync(cancellationToken);
-        return new BasicResult<TValue?>(result.Code, content.FirstOrDefault());
+        await using (DbResult<TValue?> result = factory(ConnectionAddress, Command))
+        {
+            result.Options.PopulateFields();
+            await result.Prepare(cancellationToken).ConfigureAwait(false);
+            List<TValue?> content = await result.Content.ToListAsync(cancellationToken);
+            return new BasicResult<TValue?>(result.Code, content.FirstOrDefault());
+        }
     }
 
     public async Task<IResult<IAsyncEnumerable<TModel>>> ExecuteReaderAsync<TResult, TModel>(
@@ -145,7 +155,7 @@ public sealed class DbCommandBuilder<TCommand>
             throw new InvalidOperationException($"Please specify a stored procedure or statement to run.");
         }
 
-        DbResult<TModel> result = factory(ConnectionAddress, (TCommand)Command);
+        DbResult<TModel> result = factory(ConnectionAddress, Command);
         await result.Prepare(cancellationToken).ConfigureAwait(false);
         return result;
     }
@@ -160,12 +170,16 @@ public sealed class DbCommandBuilder<TCommand>
         return new BasicResult<List<TModel>>(rawResult.Code, loadedContent);
     }
 
-    public IMultiPartResult ExecuteReaders(
-        Func<string, TCommand, CancellationToken, DbMultiPartResult> factory,
-        Action<ModelBindingOptions> options,
-        CancellationToken cancellationToken)
+    public Func<string, TCommand, CancellationToken, DbMultiPartResult> CreateMultiPartResultFactory { get; set; }
+    
+    public IMultiPartResult ExecuteReaders(Action<ModelBindingOptions> options, CancellationToken cancellationToken)
     {
-        DbMultiPartResult result = factory(ConnectionAddress, (TCommand)Command, cancellationToken);
+        if (CreateMultiPartResultFactory == null)
+        {
+            throw new ArgumentException(nameof(CreateMultiPartResultFactory));
+        }
+        
+        DbMultiPartResult result = CreateMultiPartResultFactory(ConnectionAddress, Command, cancellationToken);
         options(result.Options);
         return result;
     }
