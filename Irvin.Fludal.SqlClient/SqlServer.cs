@@ -2,7 +2,7 @@
 
 namespace Irvin.Fludal.SqlClient;
 
-public class SqlServer : IDataSource<SqlServer>, IDbSource<SqlServer>, IProcedureTarget<SqlServer>
+public class SqlServer : IDbSource<SqlServer>, IProcedureTarget<SqlServer>, ICommandTarget
 {
     public SqlServer()
     {
