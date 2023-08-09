@@ -2,7 +2,7 @@
 
 namespace Irvin.Fludal.Postgres;
 
-public class Postgres : IDbSource<Postgres>, IProcedureTarget<Postgres>
+public class Postgres : IDbSource<Postgres>, IProcedureTarget<Postgres>, ICommandTarget
 {
     public Postgres()
     {
