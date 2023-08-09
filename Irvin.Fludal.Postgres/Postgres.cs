@@ -2,7 +2,7 @@
 
 namespace Irvin.Fludal.Postgres;
 
-public class Postgres : IDbSource<Postgres>, IProcedureTarget<Postgres>, ICommandTarget
+public class Postgres : IDbSource<Postgres>, IProcedureTarget<Postgres>, ICommandTarget<Postgres>
 {
     public Postgres()
     {
@@ -36,10 +36,15 @@ public class Postgres : IDbSource<Postgres>, IProcedureTarget<Postgres>, IComman
         return this;
     }
 
-    public Postgres RunQuery(string commandText)
+    public Postgres RunQuery(string queryText)
     {
-        Builder.SetUpDirectQueryExecution(commandText);
+        Builder.SetUpDirectQueryExecution(queryText);
         return this;
+    }
+
+    public Postgres RunCommand(string commandText)
+    {
+        return RunQuery(commandText);
     }
 
     public Postgres WithParameter<T>(string name, T? value)
@@ -60,7 +65,7 @@ public class Postgres : IDbSource<Postgres>, IProcedureTarget<Postgres>, IComman
         Builder.SetUpOutputParameter(parameterName, typeof(T).ToDbType());
         return this;
     }
-    
+
     public Postgres WithTimeout(TimeSpan timeSpan)
     {
         Builder.SetTimeout(timeSpan);

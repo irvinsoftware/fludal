@@ -2,7 +2,7 @@
 
 namespace Irvin.Fludal.SqlClient;
 
-public class SqlServer : IDbSource<SqlServer>, IProcedureTarget<SqlServer>, ICommandTarget
+public class SqlServer : IDbSource<SqlServer>, IProcedureTarget<SqlServer>, ICommandTarget<SqlServer>
 {
     public SqlServer()
     {
@@ -36,10 +36,15 @@ public class SqlServer : IDbSource<SqlServer>, IProcedureTarget<SqlServer>, ICom
         return this;
     }
 
-    public SqlServer RunQuery(string commandText)
+    public SqlServer RunQuery(string queryText)
     {
-        Builder.SetUpDirectQueryExecution(commandText);
+        Builder.SetUpDirectQueryExecution(queryText);
         return this;
+    }
+
+    public SqlServer RunCommand(string commandText)
+    {
+        return RunQuery(commandText);
     }
 
     public SqlServer WithParameter<T>(string name, T? value)
@@ -60,7 +65,7 @@ public class SqlServer : IDbSource<SqlServer>, IProcedureTarget<SqlServer>, ICom
         Builder.SetUpOutputParameter(parameterName, typeof(T).ToDbType());
         return this;
     }
-    
+
     public SqlServer WithTimeout(TimeSpan timeSpan)
     {
         Builder.SetTimeout(timeSpan);
