@@ -1,11 +1,11 @@
-﻿using System.Data.SqlClient;
+﻿using System.Data.Common;
 using Irvin.Extensions.Collections;
 
-namespace Irvin.Fludal.SqlClient;
+namespace Irvin.Fludal;
 
-internal class SqlMultiPartResult : SqlCursor, IMultiPartResult
+public abstract class DbMultiPartResult : DbCursor, IMultiPartResult
 {
-    public SqlMultiPartResult(string connectionAddress, SqlCommand command, CancellationToken cancellationToken)
+    protected DbMultiPartResult(string connectionAddress, DbCommand command, CancellationToken cancellationToken)
         : base(connectionAddress, command)
     {
         Options = new ModelBindingOptions();
@@ -14,11 +14,11 @@ internal class SqlMultiPartResult : SqlCursor, IMultiPartResult
 
     public int? Code => ReturnCode;
     public IEnumerable<string> Warnings => ActualWarnings;
-    internal ModelBindingOptions Options { get; }
+    public ModelBindingOptions Options { get; }
 
     public async Task<T> ReadSingle<T>()
     {
-        SqlCursor<T> cursor = await GetSubCursor<T>();
+        DbCursor<T> cursor = await GetSubCursor<T>();
 
         if (await cursor.MoveNextAsync())
         {
@@ -35,24 +35,26 @@ internal class SqlMultiPartResult : SqlCursor, IMultiPartResult
 
     public async Task<List<T>> ReadList<T>()
     {
-        SqlCursor<T> cursor = await GetSubCursor<T>();
+        DbCursor<T> cursor = await GetSubCursor<T>();
         return await cursor.ToListAsync(_cancellationToken);
     }
 
-    private async Task<SqlCursor<T>> GetSubCursor<T>()
+    private async Task<DbCursor<T>> GetSubCursor<T>()
     {
-        SqlDataReader reader = _pipeline.Tip as SqlDataReader;
+        DbDataReader reader = _pipeline.Tip as DbDataReader;
         if (reader != null)
         {
             await reader.NextResultAsync(_cancellationToken);
         }
         else
         {
-            await Prepare();
+            await Execute();
         }
 
-        SqlCursor<T> subCursor = new SqlCursor<T>(_pipeline);
+        DbCursor<T> subCursor = CreateCursor<T>();
         subCursor.Options = Options;
         return subCursor;
     }
+
+    protected abstract DbCursor<T> CreateCursor<T>();
 }

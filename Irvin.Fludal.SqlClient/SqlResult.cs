@@ -1,103 +1,35 @@
-﻿using System.Data.SqlClient;
+﻿using System.Data.Common;
+using System.Data.SqlClient;
 
 namespace Irvin.Fludal.SqlClient;
 
-public class SqlResult : IResult, IDisposable
+public class SqlResult : DbResult
 {
-    private SqlExecutor Executor { get; set; }
-    
-    internal SqlResult(string connectionAddress, SqlCommand command)
+    public SqlResult(string connectionAddress, SqlCommand command) 
+        : base(connectionAddress, command)
     {
-        Executor = new SqlExecutor(connectionAddress, command.Clone());
     }
 
-    public int? Code => Executor.ReturnCode;
-    public IEnumerable<string> Warnings => Executor.ActualWarnings;
-
-    internal async Task Prepare(CancellationToken cancellationToken = default)
+    protected override DbExecutor CreateExecutor(string connectionAddress, DbCommand command)
     {
-        await Executor.Prepare(cancellationToken).ConfigureAwait(false);
-    }
-    
-    public T? GetOutputValue<T>(string parameterName)
-        where T : struct
-    {
-        return (T?) GetOutputParameterValue(parameterName);
+        return new SqlExecutor(connectionAddress, command as SqlCommand);
     }
 
-    public string GetOutputValue(string parameterName)
+    protected override string CleanParameterName(string parameterName)
     {
-        return GetOutputParameterValue(parameterName)?.ToString();
-    }
-
-    private object GetOutputParameterValue(string parameterName)
-    {
-        parameterName = parameterName.ToCanonicalParameterName();
-
-        Dictionary<string, object> outputs = Executor.OutputParameters;
-
-        if (!outputs.ContainsKey(parameterName))
-        {
-            throw new InvalidOperationException(
-                $"The output parameter '{parameterName}' was not found. " +
-                $"Please use {nameof(SqlServer.WithOutputParameter)} to prepare the command properly.");
-        }
-
-        object rawValue = outputs[parameterName];
-        if (rawValue == DBNull.Value)
-        {
-            rawValue = null;
-        }
-
-        return rawValue;
-    }
-
-    public void Dispose()
-    {
-        Executor?.Dispose();
-        Executor = null;
+        return parameterName.ToCanonicalParameterName();
     }
 }
 
-internal class SqlResult<TModel> : IResult<IAsyncEnumerable<TModel>>, IDisposable, IAsyncDisposable
+internal class SqlResult<TModel> : DbResult<TModel>
 {
-    private bool IsDisposed { get; set; }
-    private SqlCursor<TModel> Cursor { get; set; }
-
-    internal SqlResult(string connectionAddress, SqlCommand command)
+    public SqlResult(string connectionAddress, SqlCommand command) 
+        : base(connectionAddress, command)
     {
-        Options = new ModelBindingOptions();
-        Cursor = new SqlCursor<TModel>(connectionAddress, command.Clone());
-        Cursor.Options = Options;
     }
 
-    internal async Task Prepare(CancellationToken cancellationToken = default)
+    protected override DbCursor<TModel> CreateCursor(string connectionAddress, DbCommand command)
     {
-        await Cursor.Prepare(cancellationToken).ConfigureAwait(false);
-    }
-
-    public int? Code => Cursor.ReturnCode;
-    public IEnumerable<string> Warnings => Cursor.ActualWarnings;
-    public IAsyncEnumerable<TModel> Content => Cursor;
-    public ModelBindingOptions Options { get; }
-
-    public void Dispose()
-    {
-        if (!IsDisposed)
-        {
-            Cursor.Dispose();
-            IsDisposed = true;
-        }
-    }
-
-    public ValueTask DisposeAsync()
-    {
-        if (!IsDisposed)
-        {
-            IsDisposed = true;
-            return Cursor.DisposeAsync();
-        }
-
-        return new ValueTask();
+        return new SqlCursor<TModel>(connectionAddress, command as SqlCommand);
     }
 }
