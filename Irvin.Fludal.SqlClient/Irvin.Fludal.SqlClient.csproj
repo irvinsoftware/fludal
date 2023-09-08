@@ -8,7 +8,7 @@
         <Configurations>Debug;Release;DebugEverything</Configurations>
         <Platforms>AnyCPU</Platforms>
         <PackageId>Fludal.SqlServer</PackageId>
-        <Version>0.8.0</Version>
+        <Version>0.8.1</Version>
         <Title>Fluent Data Access Layer for SQL Server</Title>
         <Authors>Nate Irvin</Authors>
         <Copyright>Copyright © Nathaniel Irvin 2023</Copyright>

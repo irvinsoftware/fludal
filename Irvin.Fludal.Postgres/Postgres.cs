@@ -47,6 +47,13 @@ public class Postgres : IDbSource<Postgres>, IProcedureTarget<Postgres>, IComman
         return RunQuery(commandText);
     }
 
+    public Postgres WithParameter<T>(T? value)
+        where T : struct
+    {
+        Builder.AddInputParameter(null, value);
+        return this;
+    }
+    
     public Postgres WithParameter<T>(string name, T? value)
         where T : struct
     {
@@ -54,6 +61,12 @@ public class Postgres : IDbSource<Postgres>, IProcedureTarget<Postgres>, IComman
         return this;
     }
 
+    public Postgres WithParameter(string value)
+    {
+        Builder.AddInputParameter(null, value);
+        return this;
+    }
+    
     public Postgres WithParameter(string name, string value)
     {
         Builder.AddInputParameter(name, value);

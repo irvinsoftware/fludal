@@ -50,12 +50,22 @@ public class SqlServer : IDbSource<SqlServer>, IProcedureTarget<SqlServer>, ICom
     public SqlServer WithParameter<T>(string name, T? value)
         where T : struct
     {
+        if (string.IsNullOrWhiteSpace(name))
+        {
+            throw new ArgumentNullException(nameof(name));
+        }
+        
         Builder.AddInputParameter(name, value);
         return this;
     }
 
     public SqlServer WithParameter(string name, string value)
     {
+        if (string.IsNullOrWhiteSpace(name))
+        {
+            throw new ArgumentNullException(nameof(name));
+        }
+        
         Builder.AddInputParameter(name, value);
         return this;
     }

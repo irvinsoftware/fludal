@@ -17,14 +17,12 @@ public sealed class DbCommandBuilder<TCommand>
         
         if (File.Exists("app.config"))
         {
-            XmlDocument document = new XmlDocument();
-            document.Load("app.config");
-            connectionAddress = document.SelectSingleNode($"//connectionStrings/add[@name='{connectionName}']/@connectionString")?.Value;
+            connectionAddress = Please.GetFrameworkConnectionString(connectionName);
         }
 
         SetConnectionAddress(connectionAddress);
     }
-    
+
     public void SetConnectionAddress(string connectionAddress)
     {
         if (string.IsNullOrWhiteSpace(connectionAddress))
@@ -69,11 +67,6 @@ public sealed class DbCommandBuilder<TCommand>
 
     public void AddInputParameter(string name, object value)
     {
-        if (string.IsNullOrWhiteSpace(name))
-        {
-            throw new ArgumentNullException(nameof(name));
-        }
-        
         if (Command == null)
         {
             Command = new TCommand();
