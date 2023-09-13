@@ -80,7 +80,7 @@ public abstract class DbCursor<TModel> : DbCursor, IAsyncEnumerable<TModel>, IAs
                 ? typeof(TModel).GetGenericArguments().First()
                 : typeof(TModel);
         
-        if (itemType.IsPrimitive)
+        if (itemType.IsBuiltIn())
         {
             return (TModel) record[0];
         }

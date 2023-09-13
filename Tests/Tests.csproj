@@ -15,6 +15,7 @@
     </ItemGroup>
 
     <ItemGroup>
+      <ProjectReference Include="..\Irvin.Fludal.Postgres\Irvin.Fludal.Postgres.csproj" />
       <ProjectReference Include="..\Irvin.Fludal.SqlClient\Irvin.Fludal.SqlClient.csproj" />
       <ProjectReference Include="..\Irvin.Fludal\Irvin.Fludal.csproj" />
       <ProjectReference Include="..\..\system-extensions\SystemExtensions.Standard\SystemExtensions.Standard.csproj" Condition=" '$(Configuration)' != 'DebugEverything' " />

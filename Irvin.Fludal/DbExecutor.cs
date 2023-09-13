@@ -29,11 +29,14 @@ public abstract class DbExecutor : IDisposable
         DbCommand command = connection.CreateCommand();
         PopulateCommand(template, command);
 
-        _returnParameter = command.CreateParameter();
-        _returnParameter.ParameterName = "RETURN_VALUE";
-        _returnParameter.DbType = DbType.Int32;
-        _returnParameter.Direction = ParameterDirection.ReturnValue;
-        command.Parameters.Add(_returnParameter);
+        if (command.CommandType == CommandType.StoredProcedure)
+        {
+            _returnParameter = command.CreateParameter();
+            _returnParameter.ParameterName = "RETURN_VALUE";
+            _returnParameter.DbType = DbType.Int32;
+            _returnParameter.Direction = ParameterDirection.ReturnValue;
+            command.Parameters.Add(_returnParameter);
+        }
         
         _pipeline.Push(command);
     }
@@ -68,7 +71,7 @@ public abstract class DbExecutor : IDisposable
 
     protected abstract DbConnection CreateConnection(string connectionAddress);
 
-    public int? ReturnCode => (int?)_returnParameter.Value;
+    public int? ReturnCode => (int?)_returnParameter?.Value;
     public List<string> ActualWarnings { get; private set; }
     public Dictionary<string, object> OutputParameters { get; private set; }
 
