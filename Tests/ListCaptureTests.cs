@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Irvin.Extensions.Collections;
@@ -66,6 +67,20 @@ public class ListCaptureTests
         }
         Assert.AreEqual(3, rowCount);
         Assert.AreEqual(9, actual.Code);
+    }
+
+    [Test]
+    public async Task FloatBindWorks()
+    {
+        IResult<List<DBModelClass2>> actual = await
+                Please.ConnectTo<SqlServer>()
+                      .UsingConfiguredConnectionNamed("my_test")
+                      .RunQuery("SELECT CAST(9230859234.02134 AS FLOAT) AS ANumber")
+                      .WithCancellationToken(_cancellation.Token)
+                      .ThenReadAsList<DBModelClass2>()
+                      .ConfigureAwait(false);
+
+        Assert.AreEqual(9230859234.02134m, actual.Content.First().ANumber);
     }
 
     [Test]
@@ -291,6 +306,11 @@ public class ListCaptureTests
         public char? A { get; set; }
         public int B { get; set; }
         public DateTime? C { get; set; }
+    }
+    
+    private class DBModelClass2
+    {
+        public decimal ANumber { get; set; }
     }
     
     private struct DBModelStruct

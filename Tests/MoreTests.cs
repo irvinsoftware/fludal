@@ -11,6 +11,20 @@ namespace Tests;
 public class MoreTests
 {
     [Test]
+    public async Task ConvertsDoubleToDecimal()
+    {
+        decimal actual = await
+                Please.ConnectTo<SqlServer>()
+                      .UsingConfiguredConnectionNamed("my_test")
+                      .RunQuery("SELECT CAST(1903484.3252435 AS FLOAT)")
+                      .ThenReadAsMultipleParts(o => o.PopulateFields())
+                      .ReadSingle<decimal>()
+                      .ConfigureAwait(false);
+        
+        Assert.AreEqual(1903484.3252435, actual);
+    }
+    
+    [Test]
     public async Task GetsOutputParameters()
     {
         SqlResult execution = await
