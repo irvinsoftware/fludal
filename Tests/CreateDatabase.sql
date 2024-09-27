@@ -1,13 +1,18 @@
 USE [master]
 GO
-sp_configure 'filestream access level',2
+
+IF (SELECT windows_sku FROM sys.dm_os_windows_info) IS NOT NULL
+BEGIN
+	EXEC sp_configure 'filestream access level',2
+END
 GO
+
 RECONFIGURE WITH OVERRIDE
 GO
 
 DECLARE @DataFolderPath NVARCHAR(2000) = CONVERT(NVARCHAR(2000), SERVERPROPERTY('InstanceDefaultDataPath'))
 DECLARE @MDFPath NVARCHAR(2000) = @DataFolderPath + 'Seal_Test.mdf';
-DECLARE @FSHPath NVARCHAR(2000) = @DataFolderPath + 'Seal_Test.ndf';
+DECLARE @FSHPath NVARCHAR(2000) = CASE WHEN (SELECT windows_sku FROM sys.dm_os_windows_info) IS NOT NULL THEN @DataFolderPath + 'Seal_Test.ndf' ELSE NULL END
 DECLARE @LDFPath NVARCHAR(2000) = @DataFolderPath + 'Seal_Test.ldf';
 
 DECLARE @sql NVARCHAR(MAX) = '
@@ -20,21 +25,27 @@ CREATE DATABASE [Seal_Test]
         SIZE = 2048KB, 
         MAXSIZE = UNLIMITED, 
         FILEGROWTH = 1024KB 
-    ), 
-    FILEGROUP [FileStreamContainer] CONTAINS FILESTREAM DEFAULT 
+    )
+    
+'
+
+IF @FSHPath IS NOT NULL
+BEGIN
+	SET @sql = @sql + ',FILEGROUP [FileStreamContainer] CONTAINS FILESTREAM DEFAULT 
     ( 
         NAME = N''FileStreamHolder'', 
         FILENAME = N''' + @FSHPath + ''' 
-    )
-    LOG ON 
+    )'
+END
+
+SET @sql = @sql + 'LOG ON 
     ( 
         NAME = N''Seal_Test_log'', 
         FILENAME = N''' + @LDFPath + ''', 
         SIZE = 1024KB, 
         MAXSIZE = 2048GB, 
         FILEGROWTH = 10%
-    )
-'
+    )'
 
 PRINT @sql
 EXEC sp_executesql @sql
@@ -166,21 +177,32 @@ SET QUOTED_IDENTIFIER ON
 GO
 SET ANSI_PADDING ON
 GO
-CREATE TABLE [dbo].[Records](
-	[Id] [uniqueidentifier] ROWGUIDCOL  NOT NULL,
-	[SerialNumber] [int] NULL,
-	[Chart] [varbinary](max) FILESTREAM  NULL,
-UNIQUE NONCLUSTERED 
-(
-	[SerialNumber] ASC
-)WITH (PAD_INDEX  = OFF, STATISTICS_NORECOMPUTE  = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS  = ON, ALLOW_PAGE_LOCKS  = ON) ON [PRIMARY],
-UNIQUE NONCLUSTERED 
-(
-	[Id] ASC
-)WITH (PAD_INDEX  = OFF, STATISTICS_NORECOMPUTE  = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS  = ON, ALLOW_PAGE_LOCKS  = ON) ON [PRIMARY]
-) ON [PRIMARY] FILESTREAM_ON [FileStreamContainer]
+IF (SELECT windows_sku FROM sys.dm_os_windows_info) IS NOT NULL
+BEGIN
+	CREATE TABLE [dbo].[Records](
+		[Id] [uniqueidentifier] ROWGUIDCOL  NOT NULL,
+		[SerialNumber] [int] NULL,
+		[Chart] [varbinary](max) FILESTREAM  NULL,
+	UNIQUE NONCLUSTERED 
+	(
+		[SerialNumber] ASC
+	)WITH (PAD_INDEX  = OFF, STATISTICS_NORECOMPUTE  = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS  = ON, ALLOW_PAGE_LOCKS  = ON) ON [PRIMARY],
+	UNIQUE NONCLUSTERED 
+	(
+		[Id] ASC
+	)WITH (PAD_INDEX  = OFF, STATISTICS_NORECOMPUTE  = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS  = ON, ALLOW_PAGE_LOCKS  = ON) ON [PRIMARY]
+	) ON [PRIMARY] FILESTREAM_ON [FileStreamContainer]
+END
 GO
 SET ANSI_PADDING OFF
+GO
+IF (SELECT windows_sku FROM sys.dm_os_windows_info) IS NOT NULL
+BEGIN
+	TRUNCATE TABLE Seal_Test.dbo.Records
+	INSERT INTO Seal_Test.dbo.Records
+		VALUES (newid(), 3, CAST ('Seismic Data' as varbinary(max))),
+			   (newid(), 4, CAST (N'你能不能举个例子说明一下你刚才提到的那些进展情况？' as varbinary(max)));
+END
 GO
 /****** Object:  StoredProcedure [dbo].[ListOnly]    Script Date: 01/30/2014 23:30:07 ******/
 SET ANSI_NULLS ON
@@ -401,11 +423,7 @@ BEGIN
 END
 GO
 
-TRUNCATE TABLE Seal_Test.dbo.Records
-INSERT INTO Seal_Test.dbo.Records
-    VALUES (newid(), 3, CAST ('Seismic Data' as varbinary(max))),
-           (newid(), 4, CAST (N'你能不能举个例子说明一下你刚才提到的那些进展情况？' as varbinary(max)));
-GO
+
 
 INSERT INTO [dbo].[TransactionTable]
            ([NumberValue]

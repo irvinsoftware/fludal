@@ -102,7 +102,7 @@ public class ListCaptureTests
     {
         var actual = await
                 Please.ConnectTo<SqlServer>()
-                      .UsingConnectionString("Data Source=localhost;Integrated Security=SSPI;Initial Catalog=Seal_Test;Application Name=Tests")
+                      .UsingConnectionString("Data Source=localhost,1444;User ID=sa;Password=password_OfASufficent_Length11;Initial Catalog=Seal_Test;Application Name=Tests")
                       .AndExecuteStoredProcedure("dbo.[ComplexList]")
                       .WithParameter("Super", "whatever")
                       .WithCancellationToken(_cancellation.Token)
@@ -129,7 +129,7 @@ public class ListCaptureTests
     {
         var actual = await
                 Please.ConnectTo<SqlServer>()
-                    .UsingConnectionString("Data Source=localhost;Integrated Security=SSPI;Initial Catalog=Seal_Test;Application Name=Tests")
+                    .UsingConnectionString("Data Source=localhost,1444;User ID=sa;Password=password_OfASufficent_Length11;Initial Catalog=Seal_Test;Application Name=Tests")
                     .AndExecuteStoredProcedure("dbo.[ComplexList]")
                     .WithParameter("Super", "whatever")
                     .WithCancellationToken(_cancellation.Token)
