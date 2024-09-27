@@ -8,10 +8,10 @@
         <Configurations>Debug;Release;DebugEverything</Configurations>
         <Platforms>AnyCPU</Platforms>
         <PackageId>Fludal.Postgres</PackageId>
-        <Version>0.8.1</Version>
+        <Version>0.8.2</Version>
         <Title>Fluent Data Access Layer for PostgreSQL</Title>
         <Authors>Nate Irvin</Authors>
-        <Copyright>Copyright © Nathaniel Irvin 2023</Copyright>
+        <Copyright>Copyright © Nathaniel Irvin 2023-2024</Copyright>
         <RepositoryUrl>https://github.com/irvinsoftware/fludal</RepositoryUrl>
         <RepositoryType>git</RepositoryType>
         <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
@@ -27,7 +27,7 @@
     </ItemGroup>
 
     <ItemGroup>
-      <PackageReference Include="Npgsql" Version="7.0.4" />
+      <PackageReference Include="Npgsql" Version="8.0.4" />
       <PackageReference Include="System.Configuration.ConfigurationManager" Version="6.0.0" />
     </ItemGroup>
 
