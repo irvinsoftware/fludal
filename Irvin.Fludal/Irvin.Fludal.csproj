@@ -6,10 +6,10 @@
         <Nullable>disable</Nullable>
         <LangVersion>10</LangVersion>
         <PackageId>Fludal</PackageId>
-        <Version>0.8.1</Version>
+        <Version>0.8.2</Version>
         <Title>Fluent Data Access Layer</Title>
         <Authors>Nate Irvin</Authors>
-        <Copyright>Copyright © Nathaniel Irvin 2023</Copyright>
+        <Copyright>Copyright © Nathaniel Irvin 2023-2025</Copyright>
         <RepositoryUrl>https://github.com/irvinsoftware/fludal</RepositoryUrl>
         <RepositoryType>git</RepositoryType>
         <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
@@ -29,7 +29,7 @@
     </ItemGroup>
 
     <ItemGroup>
-        <PackageReference Include="Irvin.SystemExtensions" Version="1.4.0" Condition=" '$(Configuration)' != 'DebugEverything' " />
+        <PackageReference Include="Irvin.SystemExtensions" Version="1.5.0" Condition=" '$(Configuration)' != 'DebugEverything' " />
     </ItemGroup>
 
 </Project>

@@ -82,7 +82,15 @@ public abstract class DbCursor<TModel> : DbCursor, IAsyncEnumerable<TModel>, IAs
         
         if (itemType.IsBuiltIn())
         {
-            return (TModel) record[0];
+            object rawValue = record[0];
+            
+            //double cannot be cast to decimal, but System.Decimal has a constructor that takes a double 
+            if (typeof(TModel) == typeof(decimal))
+            {
+                return (TModel) Activator.CreateInstance(typeof(TModel), rawValue);
+            }
+
+            return (TModel) rawValue;
         }
         
         List<string> columnNames = new List<string>();

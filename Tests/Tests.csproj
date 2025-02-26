@@ -1,24 +1,38 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
     <PropertyGroup>
-        <TargetFramework>net6.0</TargetFramework>
+        <TargetFramework>net8.0</TargetFramework>
         <Nullable>disable</Nullable>
 
         <IsPackable>false</IsPackable>
+
+        <Configurations>Debug;Release;DebugEverything</Configurations>
+
+        <Platforms>AnyCPU</Platforms>
+    </PropertyGroup>
+
+    <PropertyGroup Condition=" '$(Configuration)' == 'DebugEverything' ">
+      <DebugSymbols Condition=" '$(DebugSymbols)' == '' ">true</DebugSymbols>
+      <Optimize Condition=" '$(Optimize)' == '' ">false</Optimize>
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.11.0" />
+        <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.13.0" />
+        <PackageReference Include="NETStandard.Library" Version="2.0.3" />
         <PackageReference Include="NUnit" Version="3.13.3" />
-        <PackageReference Include="NUnit3TestAdapter" Version="4.0.0" />
-        <PackageReference Include="coverlet.collector" Version="3.1.0" />    
+        <PackageReference Include="NUnit3TestAdapter" Version="4.5.0" />
+        <PackageReference Include="coverlet.collector" Version="6.0.4">
+          <PrivateAssets>all</PrivateAssets>
+          <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+        </PackageReference>
+        <PackageReference Include="Irvin.SystemExtensions" Version="1.5.0" Condition=" '$(Configuration)' != 'DebugEverything' " />
     </ItemGroup>
 
     <ItemGroup>
       <ProjectReference Include="..\Irvin.Fludal.Postgres\Irvin.Fludal.Postgres.csproj" />
       <ProjectReference Include="..\Irvin.Fludal.SqlClient\Irvin.Fludal.SqlClient.csproj" />
       <ProjectReference Include="..\Irvin.Fludal\Irvin.Fludal.csproj" />
-      <ProjectReference Include="..\..\system-extensions\SystemExtensions.Standard\SystemExtensions.Standard.csproj" Condition=" '$(Configuration)' != 'DebugEverything' " />
+      <ProjectReference Include="..\..\system-extensions\SystemExtensions.Standard\SystemExtensions.Standard.csproj" Condition=" '$(Configuration)' == 'DebugEverything' " />
     </ItemGroup>
 
     <ItemGroup>

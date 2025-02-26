@@ -8,10 +8,10 @@
         <Configurations>Debug;Release;DebugEverything</Configurations>
         <Platforms>AnyCPU</Platforms>
         <PackageId>Fludal.SqlServer</PackageId>
-        <Version>0.8.1</Version>
+        <Version>0.8.2</Version>
         <Title>Fluent Data Access Layer for SQL Server</Title>
         <Authors>Nate Irvin</Authors>
-        <Copyright>Copyright © Nathaniel Irvin 2023</Copyright>
+        <Copyright>Copyright © Nathaniel Irvin 2023-2025</Copyright>
         <RepositoryUrl>https://github.com/irvinsoftware/fludal</RepositoryUrl>
         <RepositoryType>git</RepositoryType>
         <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
@@ -28,7 +28,7 @@
 
     <ItemGroup>
       <PackageReference Include="System.Configuration.ConfigurationManager" Version="6.0.0" />
-      <PackageReference Include="System.Data.SqlClient" Version="4.8.5" />
+      <PackageReference Include="System.Data.SqlClient" Version="4.8.6" />
     </ItemGroup>
 
 </Project>

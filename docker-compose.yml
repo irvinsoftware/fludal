@@ -1,0 +1,17 @@
+services:
+  sql-server:
+    image: mcr.microsoft.com/mssql/server:2022-CU13-ubuntu-22.04
+    container_name: fludal_sqlserver
+    environment:
+      ACCEPT_EULA: "Y"
+      MSSQL_SA_PASSWORD: "password_OfASufficent_Length11"
+    ports:
+      - 1444:1433
+  
+  postgres:
+    image:  postgres:latest
+    container_name: fludal_postgres
+    environment:
+      POSTGRES_PASSWORD: "mypassword"
+    ports:
+      - 5429:5432

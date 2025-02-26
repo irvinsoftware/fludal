@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Irvin.Extensions.Collections;
@@ -69,6 +70,20 @@ public class ListCaptureTests
     }
 
     [Test]
+    public async Task FloatBindWorks()
+    {
+        IResult<List<DBModelClass2>> actual = await
+                Please.ConnectTo<SqlServer>()
+                      .UsingConfiguredConnectionNamed("my_test")
+                      .RunQuery("SELECT CAST(9230859234.02134 AS FLOAT) AS ANumber")
+                      .WithCancellationToken(_cancellation.Token)
+                      .ThenReadAsList<DBModelClass2>()
+                      .ConfigureAwait(false);
+
+        Assert.AreEqual(9230859234.02134m, actual.Content.First().ANumber);
+    }
+
+    [Test]
     public async Task CapturesEmitAndReturnCode_AllAtOnce()
     {
         var actual = await
@@ -102,7 +117,7 @@ public class ListCaptureTests
     {
         var actual = await
                 Please.ConnectTo<SqlServer>()
-                      .UsingConnectionString("Data Source=localhost;Integrated Security=SSPI;Initial Catalog=Seal_Test;Application Name=Tests")
+                      .UsingConnectionString("Data Source=localhost,1444;User ID=sa;Password=password_OfASufficent_Length11;Initial Catalog=Seal_Test;Application Name=Tests")
                       .AndExecuteStoredProcedure("dbo.[ComplexList]")
                       .WithParameter("Super", "whatever")
                       .WithCancellationToken(_cancellation.Token)
@@ -129,7 +144,7 @@ public class ListCaptureTests
     {
         var actual = await
                 Please.ConnectTo<SqlServer>()
-                    .UsingConnectionString("Data Source=localhost;Integrated Security=SSPI;Initial Catalog=Seal_Test;Application Name=Tests")
+                    .UsingConnectionString("Data Source=localhost,1444;User ID=sa;Password=password_OfASufficent_Length11;Initial Catalog=Seal_Test;Application Name=Tests")
                     .AndExecuteStoredProcedure("dbo.[ComplexList]")
                     .WithParameter("Super", "whatever")
                     .WithCancellationToken(_cancellation.Token)
@@ -291,6 +306,11 @@ public class ListCaptureTests
         public char? A { get; set; }
         public int B { get; set; }
         public DateTime? C { get; set; }
+    }
+    
+    private class DBModelClass2
+    {
+        public decimal ANumber { get; set; }
     }
     
     private struct DBModelStruct
