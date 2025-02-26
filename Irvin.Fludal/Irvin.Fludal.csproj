@@ -9,7 +9,7 @@
         <Version>0.8.2</Version>
         <Title>Fluent Data Access Layer</Title>
         <Authors>Nate Irvin</Authors>
-        <Copyright>Copyright © Nathaniel Irvin 2023-2024</Copyright>
+        <Copyright>Copyright © Nathaniel Irvin 2023-2025</Copyright>
         <RepositoryUrl>https://github.com/irvinsoftware/fludal</RepositoryUrl>
         <RepositoryType>git</RepositoryType>
         <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
