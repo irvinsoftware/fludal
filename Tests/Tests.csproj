@@ -9,6 +9,8 @@
         <Configurations>Debug;Release;DebugEverything</Configurations>
 
         <Platforms>AnyCPU</Platforms>
+
+        <DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
     </PropertyGroup>
 
     <PropertyGroup Condition=" '$(Configuration)' == 'DebugEverything' ">
@@ -38,6 +40,12 @@
     <ItemGroup>
       <None Update="app.config">
         <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      </None>
+      <None Update="startup.sh">
+        <DependentUpon>Dockerfile</DependentUpon>
+      </None>
+      <None Update="CreateDatabase.sql">
+        <DependentUpon>Dockerfile</DependentUpon>
       </None>
     </ItemGroup>
 
